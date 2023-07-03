@@ -1,0 +1,153 @@
+// Define the sequence of trials
+PennController.ResetPrefix(null); // Reset the prefix for the PennController commands
+
+
+Sequence("explanation", "questionnaire", "Button2", randomize("Exercise", "statement"), "Button", randomize("Rating", "statement"), "final");
+
+
+// Explanation trial
+newTrial("explanation",
+  newHtml("explanationText", `
+    <p>Pozdravljeni!</p>
+    <p>Pred vami je krajši eksperiment, ki preverja intuicijo rojenih govorcev slovenščine glede besednega reda. V eksperimentu je 64 povedi. Vaša naloga je, da preberete stavek in ga nato na lestvici od 1 do 5 (1 – absolutno nesprejemljivo, 5 – absolutno sprejemljivo) ocenite glede na to, kako sprejemljiv je za vas v vsakdanjem govoru, torej glede na vašo intuicijo naravnega govorca slovenščine. Pri presojanju se ne osredotočajte na slovnična pravila ali normo knjižnega jezika. Ne posvetujte se z drugimi govorci in si ne pomagajte s knjigami, temveč zaupajte svoji intuciji naravnega govorca, ali se vam stavek zdi sprejemljiv ali ne.</p>
+    <p>Sodelovanje je anonimno, saj v anketi ne zbiramo nobenih osebnih podatkov. Prosila pa vas bom za nekaj demografskih informacij, namenjenih le za statistično obdelavo podatkov.</p>
+    <p>Sledil bo krajši vprašalnik, temu pa vaja. Nato bo na vrsti eksperiment, ki vam bo vzel približno 10 minut.</p>
+    <p>Hvala za sodelovanje v eksperimentu!</p>
+    <p>Katarina Gomboc Čeh<br>
+    mlada raziskovalka<br>
+    Center za kognitivne znanosti jezika<br>
+    Univerza v Novi Gorici<br>
+   email: <a href="mailto:katarina.gomboc.ceh@ung.si">katarina.gomboc.ceh@ung.si</a></p>
+  `)
+    .print()
+  ,
+  newButton("Naprej")
+    .print()
+    .wait()
+);
+
+
+// Questionnaire trial
+
+newTrial("questionnaire",
+  newText("languageQuestion", "Ste poleg slovenščine rojeni oziroma naravni govorec še katerega jezika? Če ste, katerega? Če niste, izberite ne.")
+    .print()
+  ,
+  newDropDown("language", "")
+    .add("da", "ne")
+    .print()
+    .wait()
+    .test.selected()
+    .success(
+      getDropDown("language")
+        .test.selected("da")
+        .success(
+          newText("languageInputInstruction", "Prosim, navedite kateri jezik:")
+            .print()
+          ,
+          newTextInput("otherLanguage", "")
+            .print()
+            .wait()
+            .log()
+        )
+    )
+    .failure(
+      newText("errorMessage", "<p>Please select an option.</p>")
+        .print()
+        .wait()
+    )
+  ,
+  newText("regionQuestion", "V kateri slovenski regiji ste do tega trenutka preživeli največji del svojega življenja? Če niste živeli v Sloveniji, označite tujino.")
+    .print()
+  ,
+  newDropDown("regionDropDown", "")
+    .add("Pomurska regija", "Podravska regija", "Koroška regija", "Savinjska regija", "Zasavska regija", "Posavska regija", "Jugovzhodna regija", "Osrednjeslovenska regija", "Gorenjska regija", "Primorsko-notranjska regija", "Goriška regija", "Obalno-kraška regija", "Tujina")
+    .print()
+    .wait()
+    .log()
+,
+  newButton("Naprej")
+    .print()
+    .wait()
+);
+
+// Button trial
+newTrial("Button2",
+  newHtml("buttonText", "<p>Sledi vaja. Sprejemljivost stavka v svojem govoru ocenite na lestvici od 1 do 5, pri čemer 1 pomeni za vas popolnoma nesprejemljiv stavek, 5 pa absolutno sprejemljiv stavek. Upoštevajte svoj naravni jezikovni čut.</p>")
+    .print()
+  ,
+  newButton("continueButton", "Naprej")
+    .print()
+    .wait()
+);
+
+// Exercise trial
+
+Template("exercise.csv", row =>
+  newTrial("Exercise",
+    newHtml("statement", "<p>" + row.statement + "</p>")
+      .print()
+    ,
+    newScale("ratingScale", "1", "2", "3", "4", "5")
+      .labelsPosition("top")
+      .print()
+      .wait()
+      .log() // Log the participant's response
+  )
+);
+
+// Button trial
+newTrial("Button",
+  newHtml("buttonText", "<p>Sledi eksperiment. Sprejemljivost stavka v svojem govoru ocenite na lestvici od 1 do 5, pri čemer 1 pomeni za vas popolnoma nesprejemljiv stavek, 5 pa absolutno sprejemljiv stavek. Upoštevajte svoj naravni jezikovni čut.</p>")
+    .print()
+  ,
+  newButton("continueButton", "Naprej")
+    .print()
+    .wait()
+);
+
+// Rating and statement trial
+Template("rating.csv", row =>
+  newTrial("Rating",
+    newHtml("statement", "<p>" + row.statement + "</p>")
+      .print()
+    ,
+    newScale("ratingScale", "1", "2", "3", "4", "5")
+      .labelsPosition("top")
+      .print()
+      .wait()
+      .log() // Log the participant's response
+  )
+);
+
+// Rating and statement trial alternative
+Template("rating2.csv", row =>
+  newTrial("Rating2",
+    newHtml("statement", "<p>" + row.statement + "</p>")
+      .print()
+    ,
+    newScale("ratingScale", "1", "2", "3", "4", "5")
+      .labelsPosition("top")
+      .print()
+      .wait()
+      .log() // Log the participant's response
+  )
+);
+
+
+// Final trial
+newTrial("final",
+  newHtml("thankYouText", "<p>Hvala za sodelovanje!</p>")
+    .print()
+  ,
+  newButton("Končaj")
+    .print()
+    .wait()
+);
+
+// Set up the experiment
+PennController.PreloadZip("your_zip_file.zip"); // Replace with the name of your zip file containing the necessary resources
+PennController.DebugOff();
+
+// Start the experiment
+PennController.Start();
